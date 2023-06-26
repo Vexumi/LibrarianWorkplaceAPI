@@ -1,4 +1,13 @@
+using LibrarianWorkplaceAPI;
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
+
+// Получаем строку подключения
+string connection = builder.Configuration.GetConnectionString("DefaultConnection");
+
+// Добавляем сервис
+builder.Services.AddDbContext<ApplicationContext>(options => options.UseNpgsql(connection));
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -16,6 +25,10 @@ app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
-app.MapControllers();
+//app.MapControllers();
+
+app.MapControllerRoute(
+    name: "default",
+    pattern: "api/{controller}/{action}/{id?}");
 
 app.Run();

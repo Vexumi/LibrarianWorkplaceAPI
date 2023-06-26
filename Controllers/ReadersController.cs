@@ -5,7 +5,7 @@ using System.Reflection.PortableExecutable;
 namespace LibrarianWorkplaceAPI.Controllers
 {
     [ApiController]
-    [Route("[controller]/[action]")]
+    [Route("api/[controller]/[action]")]
     public class ReadersController : ControllerBase
     {
         private readonly ILogger<ReadersController> _logger;

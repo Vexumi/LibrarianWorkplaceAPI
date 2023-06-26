@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using System.Net;
 using System.Net.Http;
+using System.Text.RegularExpressions;
 
 namespace LibrarianWorkplaceAPI.Controllers
 {
@@ -19,11 +20,8 @@ namespace LibrarianWorkplaceAPI.Controllers
         }
 
 
-        // GET: /GetBookById?id=1
+        // GET: /GetBookById
         [HttpGet(Name = "GetBookById")]
-        //[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(BookModel))]
-        //[ProducesResponseType(StatusCodes.Status404NotFound)]
-        //[ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> GetBookById(int? vendorCode)
         {
             if (vendorCode is null) return BadRequest();
@@ -33,8 +31,41 @@ namespace LibrarianWorkplaceAPI.Controllers
             return Ok(book);
         }
 
+        // GET: /GetBookByName
+        [HttpGet(Name = "GetBookByTitle")]
+        public async Task<IActionResult> GetBookByTitle(string title)
+        {
 
-        // POST: /AddBook {BookModel book}
+            var books = await _context.Books.Where(b => EF.Functions.Like(b.Title, $"%{title}%")).ToArrayAsync();
+            if (books is null || books.Count() == 0) return NotFound(title);
+
+            return Ok(books);
+        }
+
+        // GET: /GetAvailableBooks
+        [HttpGet(Name = "GetAvailableBooks")]
+        public async Task<IActionResult> GetAvailableBooks()
+        {
+
+            var books = await _context.Books.Where(book => book.NumberOfCopies > book.Readers.Count).ToArrayAsync();
+            if (books is null || books.Count() == 0) return Ok("All books are busy");
+
+            return Ok(books);
+        }
+
+        // GET: /GetGivedBooks
+        [HttpGet(Name = "GetGivedBooks")]
+        public async Task<IActionResult> GetGivedBooks()
+        {
+
+            var books = await _context.Books.Where(book => book.Readers.Count != book.NumberOfCopies).ToArrayAsync();
+            if (books is null || books.Count() == 0) return Ok("All books are busy");
+
+            return Ok(books);
+        }
+
+
+        // POST: /AddBook
         [HttpPost(Name = "AddBook")]
         public async Task<IActionResult> AddBook(BookGetModel book)
         {
@@ -53,7 +84,7 @@ namespace LibrarianWorkplaceAPI.Controllers
             return BadRequest(book);
         }
 
-        // DELETE: /DeleteBook?vendorCode=1
+        // DELETE: /DeleteBook
         [HttpDelete(Name = "DeleteBook")]
         public async Task<IActionResult> DeleteBook(int vendorCode)
         {
@@ -69,7 +100,7 @@ namespace LibrarianWorkplaceAPI.Controllers
             return NotFound();
         }
 
-        // PUT: /ChangeBook {BookModel book}
+        // PUT: /ChangeBook
         [HttpPut(Name = "ChangeBook")]
         public async Task<IActionResult> ChangeBook(BookModel book)
         {
@@ -82,6 +113,8 @@ namespace LibrarianWorkplaceAPI.Controllers
                     bc.Author = book.Author;
                     bc.ReleaseDate = book.ReleaseDate;
                     bc.NumberOfCopies = book.NumberOfCopies;
+                    bc.Readers = book.Readers;
+
                     _context.Entry(bc).State = EntityState.Modified;
                     await _context.SaveChangesAsync();
                     return Ok(bc);

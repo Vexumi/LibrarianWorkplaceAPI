@@ -17,18 +17,28 @@ namespace LibrarianWorkplaceAPI.Controllers
             _context = context;
         }
 
-        // GET: /GetReaderById?id=1
+        // GET: /GetReaderById
         [HttpGet(Name = "GetReaderById")]
-        public async Task<IActionResult> GetReaderById(int? id)
+        public async Task<IActionResult> GetReaderById(int id)
         {
-            if (id is null) return BadRequest();
             ReaderModel? reader = await _context.Readers.FirstOrDefaultAsync(r => r.Id == id);
-            if (reader is null) return NotFound();
+            if (reader is null) return NotFound(id);
 
             return Ok(reader);
         }
 
-        // POST: /AddReader {ReaderGetModel reader}
+        // GET: /GetReaderByName
+        [HttpGet(Name = "GetReaderByName")]
+        public async Task<IActionResult> GetReaderByName(string name)
+        {
+
+            var reader = await _context.Readers.Where(r => EF.Functions.Like(r.FullName, $"%{name}%")).ToArrayAsync();
+            if (reader is null || reader.Count() == 0) return NotFound(name);
+
+            return Ok(reader);
+        }
+
+        // POST: /AddReader
         [HttpPost(Name = "AddReader")]
         public async Task<IActionResult> AddReader(ReaderGetModel reader)
         {
@@ -46,7 +56,7 @@ namespace LibrarianWorkplaceAPI.Controllers
             return BadRequest(reader);
         }
 
-        // DELETE: /DeleteReader?id=1
+        // DELETE: /DeleteReader
         [HttpDelete(Name = "DeleteReader")]
         public async Task<IActionResult> DeleteReader(int id)
         {
@@ -62,7 +72,7 @@ namespace LibrarianWorkplaceAPI.Controllers
             return NotFound();
         }
 
-        // PUT: /ChangeReader {ReaderModel reader}
+        // PUT: /ChangeReader
         [HttpPut(Name = "ChangeReader")]
         public async Task<IActionResult> ChangeReader(ReaderModel reader)
         {
@@ -73,6 +83,7 @@ namespace LibrarianWorkplaceAPI.Controllers
                 {
                     rd.FullName = reader.FullName;
                     rd.DateOfBirth = reader.DateOfBirth;
+                    rd.Books = reader.Books;
                     _context.Entry(rd).State = EntityState.Modified;
                     await _context.SaveChangesAsync();
                     return Ok(rd);
@@ -92,6 +103,8 @@ namespace LibrarianWorkplaceAPI.Controllers
             if (reader == null || book == null) return NotFound(reader == null ? "Reader" : "Book");
 
             if (book.Readers?.Count >= book.NumberOfCopies) return BadRequest("All books are busy");
+
+            if (reader.Books != null && reader.Books.Contains(bookId)) return BadRequest("Reader already taked this book!");
 
             if (reader.Books != null) reader.Books.Add(bookId);
             else reader.Books = new List<int> { bookId };

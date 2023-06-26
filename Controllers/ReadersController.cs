@@ -18,6 +18,7 @@ namespace LibrarianWorkplaceAPI.Controllers
         }
 
         // GET: /GetReaderById
+        // Возвращает информацию о читателе по id
         [HttpGet(Name = "GetReaderById")]
         public async Task<IActionResult> GetReaderById(int id)
         {
@@ -28,6 +29,7 @@ namespace LibrarianWorkplaceAPI.Controllers
         }
 
         // GET: /GetReaderByName
+        // Возвращает информацию о читателе по ФИО или отрывку из ФИО
         [HttpGet(Name = "GetReaderByName")]
         public async Task<IActionResult> GetReaderByName(string name)
         {
@@ -39,6 +41,7 @@ namespace LibrarianWorkplaceAPI.Controllers
         }
 
         // POST: /AddReader
+        // Добавляет читателя
         [HttpPost(Name = "AddReader")]
         public async Task<IActionResult> AddReader(ReaderGetModel reader)
         {
@@ -57,6 +60,7 @@ namespace LibrarianWorkplaceAPI.Controllers
         }
 
         // DELETE: /DeleteReader
+        // Удаляет читателя по id
         [HttpDelete(Name = "DeleteReader")]
         public async Task<IActionResult> DeleteReader(int id)
         {
@@ -73,6 +77,7 @@ namespace LibrarianWorkplaceAPI.Controllers
         }
 
         // PUT: /ChangeReader
+        // Меняет данные читателя 
         [HttpPut(Name = "ChangeReader")]
         public async Task<IActionResult> ChangeReader(ReaderModel reader)
         {
@@ -94,6 +99,7 @@ namespace LibrarianWorkplaceAPI.Controllers
         }
 
         // POST: /TakeBook 
+        // Выдача книга читателю
         [HttpPost(Name = "TakeBook")]
         public async Task<IActionResult> TakeBook(int readerId, int bookId)
         {
@@ -120,6 +126,7 @@ namespace LibrarianWorkplaceAPI.Controllers
         }
 
         // POST: /ReturnBook 
+        // Возврат книги в библиотеку
         [HttpPost(Name = "ReturnBook")]
         public async Task<IActionResult> ReturnBook(int readerId, int bookId)
         {

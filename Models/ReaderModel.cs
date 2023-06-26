@@ -2,7 +2,7 @@
 
 public class ReaderModel
 {
-    [Required]
+    [Key]
     public int Id { get; set; }
 
     [Required]
@@ -10,5 +10,7 @@ public class ReaderModel
     public string FullName { get; set; }
 
     public DateTime DateOfBirth { get; set; }
+    // Список из id книг, выданных пользователю
+    public List<int>? Books { get; set; }
 }
 

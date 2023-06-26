@@ -21,13 +21,13 @@ namespace LibrarianWorkplaceAPI.Controllers
 
         // GET: /GetBookById?id=1
         [HttpGet(Name = "GetBookById")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(BookModel))]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> GetBookById(int? id)
+        //[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(BookModel))]
+        //[ProducesResponseType(StatusCodes.Status404NotFound)]
+        //[ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> GetBookById(int? vendorCode)
         {
-            if (id is null) return BadRequest();
-            BookModel? book = await _context.Books.FirstOrDefaultAsync(b => b.Id == id);
+            if (vendorCode is null) return BadRequest();
+            BookModel? book = await _context.Books.FirstOrDefaultAsync(b => b.VendorCode == vendorCode);
             if (book is null) return NotFound();
 
             return Ok(book);
@@ -36,14 +36,13 @@ namespace LibrarianWorkplaceAPI.Controllers
 
         // POST: /AddBook {BookModel book}
         [HttpPost(Name = "AddBook")]
-        public async Task<IActionResult> AddBook(BookViewModel book)
+        public async Task<IActionResult> AddBook(BookGetModel book)
         {
             if (ModelState.IsValid) {
                 BookModel newBook = new BookModel()
                 {
                     Title = book.Title,
                     Author = book.Author,
-                    VendorCode = book.VendorCode,
                     ReleaseDate = book.ReleaseDate,
                     NumberOfCopies = book.NumberOfCopies
                 };
@@ -54,11 +53,11 @@ namespace LibrarianWorkplaceAPI.Controllers
             return BadRequest(book);
         }
 
-        // DELETE: /DeleteBook?id=1
+        // DELETE: /DeleteBook?vendorCode=1
         [HttpDelete(Name = "DeleteBook")]
-        public async Task<IActionResult> DeleteBook(int id)
+        public async Task<IActionResult> DeleteBook(int vendorCode)
         {
-            var book = await _context.Books.FindAsync(id);
+            var book = await _context.Books.FindAsync(vendorCode);
             if (book != null && _context.Books != null)
             {
                 _context.Books.Attach(book);
@@ -75,10 +74,19 @@ namespace LibrarianWorkplaceAPI.Controllers
         public async Task<IActionResult> ChangeBook(BookModel book)
         {
             if (ModelState.IsValid)
-            {   
-                _context.Update(book);
-                await _context.SaveChangesAsync();
-                return Ok(book);
+            {
+                var bc = await _context.Books.FindAsync(book.VendorCode);
+                if (bc != null && _context.Books != null)
+                {
+                    bc.Title = book.Title;
+                    bc.Author = book.Author;
+                    bc.ReleaseDate = book.ReleaseDate;
+                    bc.NumberOfCopies = book.NumberOfCopies;
+                    _context.Entry(bc).State = EntityState.Modified;
+                    await _context.SaveChangesAsync();
+                    return Ok(bc);
+                }
+                return NotFound(book);
             }
             return BadRequest(book);
         }

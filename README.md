@@ -1,4 +1,4 @@
 # LibrarianWorkplaceAPI
 
 ## Настройка
-В файле appsettings.json написать свою строку подключения к PostgreSQL.
+В файле appsettings.json в "DefaultConnection" написать свою строку подключения к PostgreSQL.

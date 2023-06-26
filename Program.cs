@@ -7,8 +7,8 @@ var builder = WebApplication.CreateBuilder(args);
 string connection = builder.Configuration.GetConnectionString("DefaultConnection");
 
 // Добавляем сервис
-//builder.Services.AddDbContext<ApplicationContext>(options => options.UseNpgsql(connection));
-builder.Services.AddScoped<DbContext, ApplicationContext>().AddDbContext<ApplicationContext>(options => options.UseNpgsql(connection));
+builder.Services.AddDbContext<ApplicationContext>(options => options.UseNpgsql(connection));
+//builder.Services.AddScoped<DbContext, ApplicationContext>().AddDbContext<ApplicationContext>(options => options.UseNpgsql(connection));
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -26,10 +26,6 @@ app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
-//app.MapControllers();
-
-app.MapControllerRoute(
-    name: "default",
-    pattern: "api/{controller}/{action}/{id?}");
+app.MapControllers();
 
 app.Run();

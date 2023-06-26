@@ -6,7 +6,7 @@ namespace LibrarianWorkplaceAPI.Controllers
 {
     [ApiController]
     [Route("[controller]/[action]")]
-    public class ReadersController : Controller
+    public class ReadersController : ControllerBase
     {
         private readonly ILogger<ReadersController> _logger;
         private readonly ApplicationContext _context;

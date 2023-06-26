@@ -8,7 +8,7 @@ namespace LibrarianWorkplaceAPI.Controllers
 {
     [ApiController]
     [Route("[controller]/[action]")]
-    public class BooksController : Controller
+    public class BooksController : ControllerBase
     {
         private readonly ILogger<BooksController> _logger;
         private readonly ApplicationContext _context;
@@ -47,7 +47,7 @@ namespace LibrarianWorkplaceAPI.Controllers
         public async Task<IActionResult> GetAvailableBooks()
         {
 
-            var books = await _context.Books.Where(book => book.NumberOfCopies > book.Readers.Count).ToArrayAsync();
+            var books = await _context.Books.Where(book => book.NumberOfCopies > book.Readers.Count || book.Readers == null).ToArrayAsync();
             if (books is null || books.Count() == 0) return Ok("All books are busy");
 
             return Ok(books);
@@ -58,7 +58,7 @@ namespace LibrarianWorkplaceAPI.Controllers
         public async Task<IActionResult> GetGivedBooks()
         {
 
-            var books = await _context.Books.Where(book => book.Readers.Count != book.NumberOfCopies).ToArrayAsync();
+            var books = await _context.Books.Where(book => book.Readers != null && book.Readers.Count != 0).ToArrayAsync();
             if (books is null || books.Count() == 0) return Ok("All books are busy");
 
             return Ok(books);

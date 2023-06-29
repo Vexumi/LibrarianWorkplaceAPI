@@ -7,7 +7,7 @@ using System.Text.RegularExpressions;
 namespace LibrarianWorkplaceAPI.Controllers
 {
     [ApiController]
-    [Route("api/[controller]/[action]")]
+    [Route("books")]
     public class BooksController : ControllerBase
     {
         private readonly ILogger<BooksController> _logger;
@@ -20,9 +20,9 @@ namespace LibrarianWorkplaceAPI.Controllers
         }
 
 
-        // GET: /GetBookById
+        // GET: 
         // Возвращает данные о книге по артикулу
-        [HttpGet(Name = "GetBookById")]
+        [HttpGet("bookbyid/{vendorCode}")]
         public async Task<IActionResult> GetBookById(int? vendorCode)
         {
             if (vendorCode is null) return BadRequest();
@@ -32,9 +32,9 @@ namespace LibrarianWorkplaceAPI.Controllers
             return Ok(book);
         }
 
-        // GET: /GetBookByName
+        // GET: 
         //Возвращает данные о книге по названию
-        [HttpGet(Name = "GetBookByTitle")]
+        [HttpGet("bookbytitle/{title}")]
         public async Task<IActionResult> GetBookByTitle(string title)
         {
 
@@ -44,9 +44,9 @@ namespace LibrarianWorkplaceAPI.Controllers
             return Ok(books);
         }
 
-        // GET: /GetAvailableBooks
+        // GET: 
         // Возвращает список доступных для выдачи книг
-        [HttpGet(Name = "GetAvailableBooks")]
+        [HttpGet("availablebooks")]
         public async Task<IActionResult> GetAvailableBooks()
         {
 
@@ -56,9 +56,9 @@ namespace LibrarianWorkplaceAPI.Controllers
             return Ok(books);
         }
 
-        // GET: /GetGivedBooks
+        // GET: 
         //Возвращает список выданных книг
-        [HttpGet(Name = "GetGivedBooks")]
+        [HttpGet("givedbooks")]
         public async Task<IActionResult> GetGivedBooks()
         {
 
@@ -69,9 +69,9 @@ namespace LibrarianWorkplaceAPI.Controllers
         }
 
 
-        // POST: /AddBook
+        // POST: 
         // Добавляет книгу
-        [HttpPost(Name = "AddBook")]
+        [HttpPost("addbook")]
         public async Task<IActionResult> AddBook(BookGetModel book)
         {
             if (ModelState.IsValid) {
@@ -89,9 +89,9 @@ namespace LibrarianWorkplaceAPI.Controllers
             return BadRequest(book);
         }
 
-        // DELETE: /DeleteBook
+        // DELETE: 
         // Удаляет книгу
-        [HttpDelete(Name = "DeleteBook")]
+        [HttpDelete("deletebook/{vendorCode}")]
         public async Task<IActionResult> DeleteBook(int vendorCode)
         {
             var book = await _context.Books.FindAsync(vendorCode);
@@ -106,9 +106,9 @@ namespace LibrarianWorkplaceAPI.Controllers
             return NotFound();
         }
 
-        // PUT: /ChangeBook
+        // PUT: 
         // Меняет данные книги
-        [HttpPut(Name = "ChangeBook")]
+        [HttpPut("changebook")]
         public async Task<IActionResult> ChangeBook(BookModel book)
         {
             if (ModelState.IsValid)

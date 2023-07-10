@@ -5,7 +5,7 @@ using System.Reflection.PortableExecutable;
 namespace LibrarianWorkplaceAPI.Controllers
 {
     [ApiController]
-    [Route("readers")]
+    [Route("api/readers")]
     public class ReadersController : ControllerBase
     {
         private readonly ILogger<ReadersController> _logger;
@@ -33,7 +33,6 @@ namespace LibrarianWorkplaceAPI.Controllers
         [HttpGet("readerbyname/{name}")]
         public async Task<IActionResult> GetReaderByName(string name)
         {
-
             var reader = await _context.Readers.Where(r => EF.Functions.Like(r.FullName, $"%{name}%")).ToArrayAsync();
             if (reader is null || reader.Count() == 0) return NotFound(name);
 

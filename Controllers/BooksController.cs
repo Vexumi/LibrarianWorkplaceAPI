@@ -7,7 +7,7 @@ using System.Text.RegularExpressions;
 namespace LibrarianWorkplaceAPI.Controllers
 {
     [ApiController]
-    [Route("books")]
+    [Route("api/books")]
     public class BooksController : ControllerBase
     {
         private readonly ILogger<BooksController> _logger;

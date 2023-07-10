@@ -16,6 +16,9 @@ namespace LibrarianWorkplaceAPI
             /*modelBuilder.Entity<BookModel>().HasIndex(b => b.VendorCode).IsUnique();
             modelBuilder.Entity<ReaderModel>().HasIndex(r => r.Id).IsUnique();
             modelBuilder.Entity<BookIssueModel>().HasIndex(b => b.Id).IsUnique();*/
+
+            modelBuilder.Entity<BookModel>().HasKey(b => b.VendorCode);
+            modelBuilder.Entity<ReaderModel>().HasKey(b => b.Id);
         }
     }
 }

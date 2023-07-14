@@ -1,0 +1,48 @@
+﻿using LibrarianWorkplaceAPI.Interfaces;
+using Microsoft.EntityFrameworkCore;
+using System.Net;
+
+namespace LibrarianWorkplaceAPI.Repositories
+{
+    public class ReadersRepository: GenericRepository<ReaderModel>, IReadersRepository
+    {
+        public ReadersRepository(ApplicationContext context) : base(context)
+        {
+        }
+
+        public IEnumerable<ReaderModel> GetReaderByName(string name)
+        {
+            return _context.Readers.Where(r => EF.Functions.Like(r.FullName, $"%{name}%")).ToArray();
+        }
+
+        public void TakeBook(ReaderModel reader, BookModel book)
+        {
+            if (reader.Books != null) reader.Books.Add(book.VendorCode);
+            else reader.Books = new List<int> { book.VendorCode };
+
+            if (book.Readers != null) book.Readers.Add(reader.Id);
+            else book.Readers = new List<int> { reader.Id };
+
+            // _context.Update()
+            _context.Entry(reader).State = EntityState.Modified;
+            _context.Entry(book).State = EntityState.Modified;
+            _context.SaveChanges();
+        }
+
+        public void ReturnBook(ReaderModel reader, BookModel book)
+        {
+            reader!.Books!.Remove(book.VendorCode);
+            book!.Readers!.Remove(reader.Id);
+
+            _context.Entry(reader).State = EntityState.Modified;
+            _context.Entry(book).State = EntityState.Modified;
+            _context.SaveChanges();
+        }
+
+        public void ChangeReader(ReaderModel reader)
+        {
+            // _context.Entry(reader).State
+            _context.Readers.Update(reader);
+        }
+    }
+}

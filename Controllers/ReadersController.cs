@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using LibrarianWorkplaceAPI.Interfaces;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using System.Reflection.PortableExecutable;
 
 namespace LibrarianWorkplaceAPI.Controllers
@@ -9,20 +11,28 @@ namespace LibrarianWorkplaceAPI.Controllers
     public class ReadersController : ControllerBase
     {
         private readonly ILogger<ReadersController> _logger;
-        private readonly ApplicationContext _context;
+        private readonly ILibraryDbUnit _context;
 
-        public ReadersController(ILogger<ReadersController> logger, ApplicationContext context)
+        public ReadersController(ILogger<ReadersController> logger, ILibraryDbUnit context)
         {
             _logger = logger;
             _context = context;
         }
 
         // GET: /GetReaderById
+        // Возвращает всех читателей
+        [HttpGet("getallreaders")]
+        public IActionResult GetAllReaders()
+        {
+            return Ok(_context.Readers.GetAll().ToArray());
+        }
+
+        // GET: /GetReaderById
         // Возвращает информацию о читателе по id
         [HttpGet("readerbyid/{id}")]
-        public async Task<IActionResult> GetReaderById(int id)
+        public IActionResult GetReaderById(int id)
         {
-            ReaderModel? reader = await _context.Readers.FirstOrDefaultAsync(r => r.Id == id);
+            ReaderModel? reader = _context.Readers.GetById(id);
             if (reader is null) return NotFound(id);
 
             return Ok(reader);
@@ -31,9 +41,9 @@ namespace LibrarianWorkplaceAPI.Controllers
         // GET: /GetReaderByName
         // Возвращает информацию о читателе по ФИО или отрывку из ФИО
         [HttpGet("readerbyname/{name}")]
-        public async Task<IActionResult> GetReaderByName(string name)
+        public IActionResult GetReaderByName(string name)
         {
-            var reader = await _context.Readers.Where(r => EF.Functions.Like(r.FullName, $"%{name}%")).ToArrayAsync();
+            var reader = _context.Readers.GetReaderByName(name).ToArray();
             if (reader is null || reader.Count() == 0) return NotFound(name);
 
             return Ok(reader);
@@ -42,7 +52,7 @@ namespace LibrarianWorkplaceAPI.Controllers
         // POST: /AddReader
         // Добавляет читателя
         [HttpPost("addreader")]
-        public async Task<IActionResult> AddReader(ReaderGetModel reader)
+        public IActionResult AddReader(ReaderGetModel reader)
         {
             if (ModelState.IsValid)
             {
@@ -52,7 +62,7 @@ namespace LibrarianWorkplaceAPI.Controllers
                     DateOfBirth = reader.DateOfBirth
                 };
                 _context.Readers.Add(newReader);
-                await _context.SaveChangesAsync();
+                _context.Commit();
                 return Ok(newReader);
             }
             return BadRequest(reader);
@@ -61,15 +71,13 @@ namespace LibrarianWorkplaceAPI.Controllers
         // DELETE: /DeleteReader
         // Удаляет читателя по id
         [HttpDelete("deletereader/{id}")]
-        public async Task<IActionResult> DeleteReader(int id)
+        public IActionResult DeleteReader(int id)
         {
-            var reader = await _context.Readers.FindAsync(id);
+            var reader = _context.Readers.Find(r=>r.Id == id).FirstOrDefault();
             if (reader != null && _context.Readers != null)
             {
-                _context.Readers.Attach(reader);
-                _context.Entry(reader).State = EntityState.Deleted;
-                await _context.SaveChangesAsync();
-
+                _context.Readers.Remove(reader);
+                _context.Commit();
                 return Ok();
             }
             return NotFound();
@@ -78,18 +86,18 @@ namespace LibrarianWorkplaceAPI.Controllers
         // PUT: /ChangeReader
         // Меняет данные читателя 
         [HttpPut("changereader")]
-        public async Task<IActionResult> ChangeReader(ReaderModel reader)
+        public IActionResult ChangeReader(ReaderModel reader)
         {
             if (ModelState.IsValid)
             {
-                var rd = await _context.Readers.FindAsync(reader.Id);
+                var rd = _context.Readers.Find(r => r.Id == reader.Id).FirstOrDefault();
                 if (rd != null)
                 {
                     rd.FullName = reader.FullName;
                     rd.DateOfBirth = reader.DateOfBirth;
                     rd.Books = reader.Books;
-                    _context.Entry(rd).State = EntityState.Modified;
-                    await _context.SaveChangesAsync();
+                    _context.Readers.ChangeReader(rd);
+                    _context.Commit();
                     return Ok(rd);
                 }
                 return NotFound(reader);
@@ -100,10 +108,10 @@ namespace LibrarianWorkplaceAPI.Controllers
         // POST: /TakeBook 
         // Выдача книга читателю
         [HttpPost("takebook")]
-        public async Task<IActionResult> TakeBook(int readerId, int bookId)
+        public IActionResult TakeBook(int readerId, int bookId)
         {
-            var reader = await _context.Readers.FirstOrDefaultAsync(r => r.Id == readerId);
-            var book = await _context.Books.FirstOrDefaultAsync(r => r.VendorCode == bookId);
+            var reader = _context.Readers.Find(r => r.Id == readerId).FirstOrDefault();
+            var book = _context.Books.Find(r => r.VendorCode == bookId).FirstOrDefault();
 
             if (reader == null || book == null) return NotFound(reader == null ? "Reader" : "Book");
 
@@ -111,15 +119,7 @@ namespace LibrarianWorkplaceAPI.Controllers
 
             if (reader.Books != null && reader.Books.Contains(bookId)) return BadRequest("Reader already taked this book!");
 
-            if (reader.Books != null) reader.Books.Add(bookId);
-            else reader.Books = new List<int> { bookId };
-
-            if (book.Readers != null) book.Readers.Add(readerId);
-            else book.Readers = new List<int> { readerId };
-
-            _context.Entry(reader).State = EntityState.Modified;
-            _context.Entry(book).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
+            _context.Readers.TakeBook(reader, book);
 
             return Ok(reader);
         }
@@ -129,20 +129,15 @@ namespace LibrarianWorkplaceAPI.Controllers
         [HttpPost("returnbook")]
         public async Task<IActionResult> ReturnBook(int readerId, int bookId)
         {
-            var reader = await _context.Readers.FirstOrDefaultAsync(r => r.Id == readerId);
-            var book = await _context.Books.FirstOrDefaultAsync(r => r.VendorCode == bookId);
+            var reader = _context.Readers.Find(r => r.Id == readerId).FirstOrDefault();
+            var book = _context.Books.Find(r => r.VendorCode == bookId).FirstOrDefault();
 
             if (reader == null || book == null) return NotFound(reader == null ? "Reader" : "Book");
 
             if (!reader.Books.Contains(bookId)) return BadRequest("Reader didn't take the book");
             if (!book.Readers.Contains(readerId)) return BadRequest("Book was't issued to the reader");
 
-            reader.Books.Remove(bookId);
-            book.Readers.Remove(readerId);
-
-            _context.Entry(reader).State = EntityState.Modified;
-            _context.Entry(book).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
+            _context.Readers.ReturnBook(reader, book);
 
             return Ok(reader);
         }

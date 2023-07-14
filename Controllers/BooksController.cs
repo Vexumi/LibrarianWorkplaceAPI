@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using LibrarianWorkplaceAPI.Interfaces;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using System.Net;
 using System.Net.Http;
@@ -11,22 +13,29 @@ namespace LibrarianWorkplaceAPI.Controllers
     public class BooksController : ControllerBase
     {
         private readonly ILogger<BooksController> _logger;
-        private readonly ApplicationContext _context;
+        private readonly ILibraryDbUnit _context;
 
-        public BooksController(ILogger<BooksController> logger, ApplicationContext context)
+        public BooksController(ILogger<BooksController> logger, ILibraryDbUnit context)
         {
             _logger = logger;
             _context = context;
         }
 
 
+        //GET
+        // Возвращает все книги
+        [HttpGet("getallbooks")]
+        public ActionResult<BookModel[]> GetAllBooks()
+        {
+            return Ok(_context.Books.GetAll().ToArray());
+        }
+
         // GET: 
         // Возвращает данные о книге по артикулу
         [HttpGet("bookbyid/{vendorCode}")]
-        public async Task<IActionResult> GetBookById(int? vendorCode)
+        public ActionResult<BookModel> GetBookById(int vendorCode)
         {
-            if (vendorCode is null) return BadRequest();
-            BookModel? book = await _context.Books.FirstOrDefaultAsync(b => b.VendorCode == vendorCode);
+            BookModel? book = _context.Books.GetById(vendorCode);
             if (book is null) return NotFound();
 
             return Ok(book);
@@ -35,56 +44,55 @@ namespace LibrarianWorkplaceAPI.Controllers
         // GET: 
         //Возвращает данные о книге по названию
         [HttpGet("bookbytitle/{title}")]
-        public async Task<IActionResult> GetBookByTitle(string title)
+        public ActionResult<BookModel[]> GetBookByTitle(string title)
         {
+            IEnumerable<BookModel>? books = _context.Books.GetByTitle(title);
+            if (books is null || books.Count() == 0) return NotFound();
 
-            var books = await _context.Books.Where(b => EF.Functions.Like(b.Title, $"%{title}%")).ToArrayAsync();
-            if (books is null || books.Count() == 0) return NotFound(title);
-
-            return Ok(books);
+            return Ok(books.ToArray());
         }
 
         // GET: 
         // Возвращает список доступных для выдачи книг
         [HttpGet("availablebooks")]
-        public async Task<IActionResult> GetAvailableBooks()
+        public ActionResult<BookModel[]> GetAvailableBooks()
         {
 
-            var books = await _context.Books.Where(book => book.NumberOfCopies > book.Readers.Count || book.Readers == null).ToArrayAsync();
+            IEnumerable<BookModel>? books = _context.Books.GetAvailableBooks();
             if (books is null || books.Count() == 0) return Ok("All books are busy");
 
-            return Ok(books);
+            return Ok(books.ToArray());
         }
 
         // GET: 
         //Возвращает список выданных книг
         [HttpGet("givedbooks")]
-        public async Task<IActionResult> GetGivedBooks()
+        public ActionResult<BookModel[]> GetGivedBooks()
         {
 
-            var books = await _context.Books.Where(book => book.Readers != null && book.Readers.Count != 0).ToArrayAsync();
-            if (books is null || books.Count() == 0) return Ok("All books are busy");
+            IEnumerable<BookModel>? books = _context.Books.GetGivedBooks();
+            if (books is null || books.Count() == 0) return Ok("All books are free");
 
-            return Ok(books);
+            return Ok(books.ToArray());
         }
 
 
         // POST: 
         // Добавляет книгу
         [HttpPost("addbook")]
-        public async Task<IActionResult> AddBook(BookGetModel book)
+        public IActionResult AddBook(BookGetModel book)
         {
             if (ModelState.IsValid) {
-                BookModel newBook = new BookModel()
+                var newBook = new BookModel()
                 {
                     Title = book.Title,
                     Author = book.Author,
                     ReleaseDate = book.ReleaseDate,
-                    NumberOfCopies = book.NumberOfCopies
+                    NumberOfCopies = book.NumberOfCopies,
                 };
                 _context.Books.Add(newBook);
-                await _context.SaveChangesAsync();
-                return Ok(newBook);
+                _context.Commit();
+                return Ok();
             }
             return BadRequest(book);
         }
@@ -94,13 +102,11 @@ namespace LibrarianWorkplaceAPI.Controllers
         [HttpDelete("deletebook/{vendorCode}")]
         public async Task<IActionResult> DeleteBook(int vendorCode)
         {
-            var book = await _context.Books.FindAsync(vendorCode);
-            if (book != null && _context.Books != null)
+            var book = _context.Books.GetById(vendorCode);
+            if (book != null && _context.Books.GetAll() != null)
             {
-                _context.Books.Attach(book);
-                _context.Entry(book).State = EntityState.Deleted;
-                await _context.SaveChangesAsync();
-
+                _context.Books.Remove(book);
+                _context.Commit();
                 return Ok();
             }
             return NotFound();
@@ -109,12 +115,12 @@ namespace LibrarianWorkplaceAPI.Controllers
         // PUT: 
         // Меняет данные книги
         [HttpPut("changebook")]
-        public async Task<IActionResult> ChangeBook(BookModel book)
+        public async Task<ActionResult<BookModel?>> ChangeBook(BookModel book)
         {
             if (ModelState.IsValid)
             {
-                var bc = await _context.Books.FindAsync(book.VendorCode);
-                if (bc != null && _context.Books != null)
+                var bc = _context.Books.GetById(book.VendorCode);
+                if (bc != null && _context.Books.GetAll() != null)
                 {
                     bc.Title = book.Title;
                     bc.Author = book.Author;
@@ -122,9 +128,9 @@ namespace LibrarianWorkplaceAPI.Controllers
                     bc.NumberOfCopies = book.NumberOfCopies;
                     bc.Readers = book.Readers;
 
-                    _context.Entry(bc).State = EntityState.Modified;
-                    await _context.SaveChangesAsync();
-                    return Ok(bc);
+                    _context.Books.ChangeBook(bc);
+                    _context.Commit();
+                    return bc;
                 }
                 return NotFound(book);
             }

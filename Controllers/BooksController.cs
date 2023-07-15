@@ -94,13 +94,13 @@ namespace LibrarianWorkplaceAPI.Controllers
                 _context.Commit();
                 return Ok();
             }
-            return BadRequest(book);
+            return BadRequest();
         }
 
         // DELETE: 
         // Удаляет книгу
         [HttpDelete("deletebook/{vendorCode}")]
-        public async Task<IActionResult> DeleteBook(int vendorCode)
+        public IActionResult DeleteBook(int vendorCode)
         {
             var book = _context.Books.GetById(vendorCode);
             if (book != null && _context.Books.GetAll() != null)
@@ -113,9 +113,9 @@ namespace LibrarianWorkplaceAPI.Controllers
         }
 
         // PUT: 
-        // Меняет данные книги
+        // Редактирует данные книги
         [HttpPut("changebook")]
-        public async Task<ActionResult<BookModel?>> ChangeBook(BookModel book)
+        public IActionResult ChangeBook(BookModel book)
         {
             if (ModelState.IsValid)
             {
@@ -130,12 +130,11 @@ namespace LibrarianWorkplaceAPI.Controllers
 
                     _context.Books.ChangeBook(bc);
                     _context.Commit();
-                    return bc;
+                    return Ok(bc);
                 }
-                return NotFound(book);
+                return NotFound();
             }
-            return BadRequest(book);
+            return BadRequest();
         }
-
     }
 }

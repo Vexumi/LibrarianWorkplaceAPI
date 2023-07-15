@@ -22,17 +22,17 @@ namespace LibrarianWorkplaceAPI.Controllers
         // GET: /GetReaderById
         // Возвращает всех читателей
         [HttpGet("getallreaders")]
-        public IActionResult GetAllReaders()
+        public async Task<ActionResult<BookModel[]>> GetAllReaders()
         {
-            return Ok(_context.Readers.GetAll().ToArray());
+            return Ok((await _context.Readers.GetAll()).ToArray());
         }
 
         // GET: /GetReaderById
         // Возвращает информацию о читателе по id
         [HttpGet("readerbyid/{id}")]
-        public IActionResult GetReaderById(int id)
+        public async Task<ActionResult<ReaderModel>> GetReaderById(int id)
         {
-            ReaderModel? reader = _context.Readers.GetById(id);
+            ReaderModel? reader = await _context.Readers.GetById(id);
             if (reader is null) return NotFound(id);
 
             return Ok(reader);
@@ -41,9 +41,9 @@ namespace LibrarianWorkplaceAPI.Controllers
         // GET: /GetReaderByName
         // Возвращает информацию о читателе по ФИО или отрывку из ФИО
         [HttpGet("readerbyname/{name}")]
-        public IActionResult GetReaderByName(string name)
+        public async Task<ActionResult<ReaderModel>> GetReaderByName(string name)
         {
-            var reader = _context.Readers.GetReaderByName(name).ToArray();
+            var reader = (await _context.Readers.GetReaderByName(name)).ToArray();
             if (reader is null || reader.Count() == 0) return NotFound(name);
 
             return Ok(reader);
@@ -71,13 +71,13 @@ namespace LibrarianWorkplaceAPI.Controllers
         // DELETE: /DeleteReader
         // Удаляет читателя по id
         [HttpDelete("deletereader/{id}")]
-        public IActionResult DeleteReader(int id)
+        public async Task<IActionResult> DeleteReader(int id)
         {
-            var reader = _context.Readers.Find(r=>r.Id == id).FirstOrDefault();
+            var reader = _context.Readers.Find(r => r.Id == id).FirstOrDefault();
             if (reader != null && _context.Readers != null)
             {
                 _context.Readers.Remove(reader);
-                _context.Commit();
+                await _context.Commit();
                 return Ok();
             }
             return NotFound();
@@ -86,7 +86,7 @@ namespace LibrarianWorkplaceAPI.Controllers
         // PUT: /ChangeReader
         // Меняет данные читателя 
         [HttpPut("changereader")]
-        public IActionResult ChangeReader(ReaderModel reader)
+        public async Task<ActionResult<ReaderModel>> ChangeReader(ReaderModel reader)
         {
             if (ModelState.IsValid)
             {
@@ -97,7 +97,7 @@ namespace LibrarianWorkplaceAPI.Controllers
                     rd.DateOfBirth = reader.DateOfBirth;
                     rd.Books = reader.Books;
                     _context.Readers.ChangeReader(rd);
-                    _context.Commit();
+                    await _context.Commit();
                     return Ok(rd);
                 }
                 return NotFound(reader);
@@ -108,7 +108,7 @@ namespace LibrarianWorkplaceAPI.Controllers
         // POST: /TakeBook 
         // Выдача книга читателю
         [HttpPost("takebook")]
-        public IActionResult TakeBook(int readerId, int bookId)
+        public async Task<IActionResult> TakeBook(int readerId, int bookId)
         {
             var reader = _context.Readers.Find(r => r.Id == readerId).FirstOrDefault();
             var book = _context.Books.Find(r => r.VendorCode == bookId).FirstOrDefault();
@@ -119,9 +119,9 @@ namespace LibrarianWorkplaceAPI.Controllers
 
             if (reader.Books != null && reader.Books.Contains(bookId)) return BadRequest("Reader already taked this book!");
 
-            _context.Readers.TakeBook(reader, book);
+            await _context.Readers.TakeBook(reader, book);
 
-            return Ok(reader);
+            return Ok();
         }
 
         // POST: /ReturnBook 
@@ -134,12 +134,12 @@ namespace LibrarianWorkplaceAPI.Controllers
 
             if (reader == null || book == null) return NotFound(reader == null ? "Reader" : "Book");
 
-            if (!reader.Books.Contains(bookId)) return BadRequest("Reader didn't take the book");
-            if (!book.Readers.Contains(readerId)) return BadRequest("Book was't issued to the reader");
+            if (reader.Books is null || !reader.Books.Contains(bookId)) return BadRequest("Reader didn't take the book");
+            if (book.Readers is null || !book.Readers.Contains(readerId)) return BadRequest("Book was't issued to the reader");
 
-            _context.Readers.ReturnBook(reader, book);
+            await _context.Readers.ReturnBook(reader, book);
 
-            return Ok(reader);
+            return Ok();
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using LibrarianWorkplaceAPI.Interfaces;
+using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 
 namespace LibrarianWorkplaceAPI.Repositories
@@ -26,14 +27,14 @@ namespace LibrarianWorkplaceAPI.Repositories
             return _context.Set<T>().Where(expression);
         }
 
-        public IEnumerable<T> GetAll()
+        public async Task<IEnumerable<T>> GetAll()
         {
-            return _context.Set<T>().ToList();
+            return await _context.Set<T>().ToListAsync();
         }
 
-        public T GetById(int id)
+        public async Task<T> GetById(int id)
         {
-            return _context.Set<T>().Find(id);
+            return await _context.Set<T>().FindAsync(id);
         }
 
         public void Remove(T entity)

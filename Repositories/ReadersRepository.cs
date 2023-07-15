@@ -10,12 +10,12 @@ namespace LibrarianWorkplaceAPI.Repositories
         {
         }
 
-        public IEnumerable<ReaderModel> GetReaderByName(string name)
+        public async Task<IEnumerable<ReaderModel>> GetReaderByName(string name)
         {
-            return _context.Readers.Where(r => EF.Functions.Like(r.FullName, $"%{name}%")).ToArray();
+            return await _context.Readers.Where(r => EF.Functions.Like(r.FullName, $"%{name}%")).ToArrayAsync();
         }
 
-        public void TakeBook(ReaderModel reader, BookModel book)
+        public async Task TakeBook(ReaderModel reader, BookModel book)
         {
             if (reader.Books != null) reader.Books.Add(book.VendorCode);
             else reader.Books = new List<int> { book.VendorCode };
@@ -26,17 +26,17 @@ namespace LibrarianWorkplaceAPI.Repositories
             // _context.Update()
             _context.Entry(reader).State = EntityState.Modified;
             _context.Entry(book).State = EntityState.Modified;
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
 
-        public void ReturnBook(ReaderModel reader, BookModel book)
+        public async Task ReturnBook(ReaderModel reader, BookModel book)
         {
             reader!.Books!.Remove(book.VendorCode);
             book!.Readers!.Remove(reader.Id);
 
             _context.Entry(reader).State = EntityState.Modified;
             _context.Entry(book).State = EntityState.Modified;
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
 
         public void ChangeReader(ReaderModel reader)

@@ -2,9 +2,9 @@
 {
     public interface IBooksRepository : IGenericRepository<BookModel>
     {
-        IEnumerable<BookModel> GetByTitle(string title);
-        IEnumerable<BookModel> GetAvailableBooks();
-        IEnumerable<BookModel> GetGivedBooks();
+        Task<IEnumerable<BookModel>> GetByTitle(string title);
+        Task<IEnumerable<BookModel>> GetAvailableBooks();
+        Task<IEnumerable<BookModel>> GetGivedBooks();
         void ChangeBook(BookModel book);
     }
 }

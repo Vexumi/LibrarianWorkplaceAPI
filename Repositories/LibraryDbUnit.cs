@@ -15,9 +15,9 @@ namespace LibrarianWorkplaceAPI.Repositories
             Readers = new ReadersRepository(_context);
         }
 
-        public int Commit()
+        public async Task<int> Commit()
         {
-            return _context.SaveChanges();
+            return await _context.SaveChangesAsync();
         }
 
         public void Dispose()

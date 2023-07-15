@@ -1,4 +1,5 @@
 ﻿using LibrarianWorkplaceAPI.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace LibrarianWorkplaceAPI.Repositories
 {
@@ -8,25 +9,25 @@ namespace LibrarianWorkplaceAPI.Repositories
         {
         }
 
-        public IEnumerable<BookModel> GetByTitle(string title)
+        public async Task<IEnumerable<BookModel>> GetByTitle(string title)
         {
-            return _context.Books.Where(d => d.Title == title).ToArray();
+            return await _context.Books.Where(d => d.Title == title).ToArrayAsync();
         }
 
-        public IEnumerable<BookModel> GetAvailableBooks()
+        public async Task<IEnumerable<BookModel>> GetAvailableBooks()
         {
-            return _context.Books.Where(book => book.NumberOfCopies > book.Readers!.Count || book.Readers == null).ToArray();
+            return await _context.Books.Where(book => book.NumberOfCopies > book.Readers!.Count || book.Readers == null).ToArrayAsync();
         }
 
-        public IEnumerable<BookModel> GetGivedBooks()
+        public async Task<IEnumerable<BookModel>> GetGivedBooks()
         {
-            return _context.Books.Where(book => book.Readers != null && book.Readers.Count != 0).ToArray();
+            return await _context.Books.Where(book => book.Readers != null && book.Readers.Count != 0).ToArrayAsync();
         }
 
-        public void ChangeBook(BookModel book)
+        public async void ChangeBook(BookModel book)
         {
             _context.Books.Update(book);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
     }
 }

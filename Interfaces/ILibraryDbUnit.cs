@@ -4,6 +4,6 @@
     {
         IBooksRepository Books { get; }
         IReadersRepository Readers { get; }
-        int Commit();
+        Task<int> Commit();
     }
 }

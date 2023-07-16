@@ -24,7 +24,7 @@ namespace LibrarianWorkplaceAPI.Repositories
             return await _context.Books.Where(book => book.Readers != null && book.Readers.Count != 0).ToArrayAsync();
         }
 
-        public async void ChangeBook(BookModel book)
+        public async Task ChangeBook(BookModel book)
         {
             _context.Books.Update(book);
             await _context.SaveChangesAsync();

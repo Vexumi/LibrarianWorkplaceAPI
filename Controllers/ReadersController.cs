@@ -1,8 +1,5 @@
 ﻿using LibrarianWorkplaceAPI.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using System.Reflection.PortableExecutable;
 
 namespace LibrarianWorkplaceAPI.Controllers
 {
@@ -19,39 +16,57 @@ namespace LibrarianWorkplaceAPI.Controllers
             _context = context;
         }
 
-        // GET: /GetReaderById
-        // Возвращает всех читателей
-        [HttpGet("getallreaders")]
+        /// <summary>
+        /// Возвращает всех читателей
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult<BookModel[]>> GetAllReaders()
         {
             return Ok((await _context.Readers.GetAll()).ToArray());
         }
 
-        // GET: /GetReaderById
-        // Возвращает информацию о читателе по id
-        [HttpGet("readerbyid/{id}")]
+        /// <summary>
+        /// Возвращает информацию о читателе по id
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpGet("{id:int}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<ReaderModel>> GetReaderById(int id)
         {
             ReaderModel? reader = await _context.Readers.GetById(id);
-            if (reader is null) return NotFound(id);
+            if (reader is null) return NotFound();
 
             return Ok(reader);
         }
 
-        // GET: /GetReaderByName
-        // Возвращает информацию о читателе по ФИО или отрывку из ФИО
-        [HttpGet("readerbyname/{name}")]
+        /// <summary>
+        /// Возвращает информацию о читателе по ФИО или отрывку из ФИО
+        /// </summary>
+        /// <param name="name">ФИО читателя</param>
+        /// <returns></returns>
+        [HttpGet("{name:alpha}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<ReaderModel>> GetReaderByName(string name)
         {
             var reader = (await _context.Readers.GetReaderByName(name)).ToArray();
-            if (reader is null || reader.Count() == 0) return NotFound(name);
+            if (reader is null || reader.Count() == 0) return NotFound();
 
             return Ok(reader);
         }
 
-        // POST: /AddReader
-        // Добавляет читателя
-        [HttpPost("addreader")]
+        /// <summary>
+        /// Добавляет читателя
+        /// </summary>
+        /// <param name="reader"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status201Created)]
         public IActionResult AddReader(ReaderGetModel reader)
         {
             if (ModelState.IsValid)
@@ -63,14 +78,19 @@ namespace LibrarianWorkplaceAPI.Controllers
                 };
                 _context.Readers.Add(newReader);
                 _context.Commit();
-                return Ok(newReader);
+                return CreatedAtAction(nameof(GetReaderById), new { id = newReader.Id }, newReader);
             }
-            return BadRequest(reader);
+            return BadRequest();
         }
 
-        // DELETE: /DeleteReader
-        // Удаляет читателя по id
-        [HttpDelete("deletereader/{id}")]
+        /// <summary>
+        /// Удаляет читателя по id
+        /// </summary>
+        /// <param name="id">Id читателя</param>
+        /// <returns></returns>
+        [HttpDelete("{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeleteReader(int id)
         {
             var reader = _context.Readers.Find(r => r.Id == id).FirstOrDefault();
@@ -78,36 +98,46 @@ namespace LibrarianWorkplaceAPI.Controllers
             {
                 _context.Readers.Remove(reader);
                 await _context.Commit();
-                return Ok();
+                return NoContent();
             }
             return NotFound();
         }
 
-        // PUT: /ChangeReader
-        // Меняет данные читателя 
-        [HttpPut("changereader")]
-        public async Task<ActionResult<ReaderModel>> ChangeReader(ReaderModel reader)
+        /// <summary>
+        /// Редактирует данные читателя 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="patchedReader"></param>
+        /// <returns></returns>
+        [HttpPatch("{id:int}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> ChangeReader([FromRoute]int id, [FromBody]ReaderPatchModel patchedReader)
         {
-            if (ModelState.IsValid)
-            {
-                var rd = _context.Readers.Find(r => r.Id == reader.Id).FirstOrDefault();
-                if (rd != null)
-                {
-                    rd.FullName = reader.FullName;
-                    rd.DateOfBirth = reader.DateOfBirth;
-                    rd.Books = reader.Books;
-                    _context.Readers.ChangeReader(rd);
-                    await _context.Commit();
-                    return Ok(rd);
-                }
-                return NotFound(reader);
-            }
-            return BadRequest(reader);
+            if (!ModelState.IsValid) return BadRequest();
+
+            var reader = _context.Readers.Find(r => r.Id == id).FirstOrDefault();
+            if (reader == null) return NotFound();
+            
+            reader.FullName = patchedReader.IsFieldPresent(nameof(reader.FullName)) ? patchedReader.FullName : reader.FullName;
+            reader.DateOfBirth = patchedReader.IsFieldPresent(nameof(reader.DateOfBirth)) ? patchedReader.DateOfBirth : reader.DateOfBirth;
+
+            await _context.Readers.ChangeReader(reader);
+
+            return NoContent();
         }
 
-        // POST: /TakeBook 
-        // Выдача книга читателю
-        [HttpPost("takebook")]
+        /// <summary>
+        /// Выдача книги читателю
+        /// </summary>
+        /// <param name="readerId">Id читателя</param>
+        /// <param name="bookId">Id книги</param>
+        /// <returns></returns>
+        [HttpPut("takebook")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> TakeBook(int readerId, int bookId)
         {
             var reader = _context.Readers.Find(r => r.Id == readerId).FirstOrDefault();
@@ -117,16 +147,23 @@ namespace LibrarianWorkplaceAPI.Controllers
 
             if (book.Readers?.Count >= book.NumberOfCopies) return BadRequest("All books are busy");
 
-            if (reader.Books != null && reader.Books.Contains(bookId)) return BadRequest("Reader already taked this book!");
+            if (reader.Books != null && reader.Books.Contains(bookId)) return BadRequest("Reader has already taken this book!");
 
             await _context.Readers.TakeBook(reader, book);
 
-            return Ok();
+            return NoContent();
         }
 
-        // POST: /ReturnBook 
-        // Возврат книги в библиотеку
-        [HttpPost("returnbook")]
+        /// <summary>
+        /// Возврат книги в библиотеку
+        /// </summary>
+        /// <param name="readerId">Id читателя</param>
+        /// <param name="bookId">Id книги</param>
+        /// <returns></returns>
+        [HttpPut("returnbook")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> ReturnBook(int readerId, int bookId)
         {
             var reader = _context.Readers.Find(r => r.Id == readerId).FirstOrDefault();
@@ -139,7 +176,7 @@ namespace LibrarianWorkplaceAPI.Controllers
 
             await _context.Readers.ReturnBook(reader, book);
 
-            return Ok();
+            return NoContent();
         }
     }
 }

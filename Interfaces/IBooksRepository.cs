@@ -5,6 +5,6 @@
         Task<IEnumerable<BookModel>> GetByTitle(string title);
         Task<IEnumerable<BookModel>> GetAvailableBooks();
         Task<IEnumerable<BookModel>> GetGivedBooks();
-        void ChangeBook(BookModel book);
+        Task ChangeBook(BookModel book);
     }
 }

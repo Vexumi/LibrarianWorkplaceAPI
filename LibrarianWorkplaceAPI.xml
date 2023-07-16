@@ -1,0 +1,124 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>LibrarianWorkplaceAPI</name>
+    </assembly>
+    <members>
+        <member name="M:LibrarianWorkplaceAPI.Controllers.BooksController.GetAllBooks">
+            <summary>
+            Возвращает все книги
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:LibrarianWorkplaceAPI.Controllers.BooksController.GetBookById(System.Int32)">
+            <summary>
+            Возвращает данные о книге по артикулу
+            </summary>
+            <param name="vendorCode">Артикул книги</param>
+            <returns></returns>
+        </member>
+        <member name="M:LibrarianWorkplaceAPI.Controllers.BooksController.GetBookByTitle(System.String)">
+            <summary>
+            Возвращает данные о книге по названию
+            </summary>
+            <param name="title">Название книги</param>
+            <returns></returns>
+        </member>
+        <member name="M:LibrarianWorkplaceAPI.Controllers.BooksController.GetAvailableBooks">
+            <summary>
+            Возвращает список доступных для выдачи книг
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:LibrarianWorkplaceAPI.Controllers.BooksController.GetGivedBooks">
+            <summary>
+            Возвращает список выданных книг
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:LibrarianWorkplaceAPI.Controllers.BooksController.AddBook(BookGetModel)">
+            <summary>
+            Добавляет книгу
+            </summary>
+            <param name="book"></param>
+            <returns></returns>
+        </member>
+        <member name="M:LibrarianWorkplaceAPI.Controllers.BooksController.DeleteBook(System.Int32)">
+            <summary>
+            Удаляет книгу
+            </summary>
+            <param name="vendorCode">Артикул книги</param>
+            <returns></returns>
+        </member>
+        <member name="M:LibrarianWorkplaceAPI.Controllers.BooksController.ChangeBook(System.Int32,BookPatchModel)">
+            <summary>
+            Редактирует данные книги
+            </summary>
+            <param name="vendorCode"></param>
+            <param name="patchedBook"></param>
+            <returns></returns>
+        </member>
+        <member name="M:LibrarianWorkplaceAPI.Controllers.ReadersController.GetAllReaders">
+            <summary>
+            Возвращает всех читателей
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:LibrarianWorkplaceAPI.Controllers.ReadersController.GetReaderById(System.Int32)">
+            <summary>
+            Возвращает информацию о читателе по id
+            </summary>
+            <param name="id"></param>
+            <returns></returns>
+        </member>
+        <member name="M:LibrarianWorkplaceAPI.Controllers.ReadersController.GetReaderByName(System.String)">
+            <summary>
+            Возвращает информацию о читателе по ФИО или отрывку из ФИО
+            </summary>
+            <param name="name">ФИО читателя</param>
+            <returns></returns>
+        </member>
+        <member name="M:LibrarianWorkplaceAPI.Controllers.ReadersController.AddReader(ReaderGetModel)">
+            <summary>
+            Добавляет читателя
+            </summary>
+            <param name="reader"></param>
+            <returns></returns>
+        </member>
+        <member name="M:LibrarianWorkplaceAPI.Controllers.ReadersController.DeleteReader(System.Int32)">
+            <summary>
+            Удаляет читателя по id
+            </summary>
+            <param name="id">Id читателя</param>
+            <returns></returns>
+        </member>
+        <member name="M:LibrarianWorkplaceAPI.Controllers.ReadersController.ChangeReader(System.Int32,ReaderPatchModel)">
+            <summary>
+            Меняет данные читателя 
+            </summary>
+            <param name="patchedReader"></param>
+            <returns></returns>
+        </member>
+        <member name="M:LibrarianWorkplaceAPI.Controllers.ReadersController.TakeBook(System.Int32,System.Int32)">
+            <summary>
+            Выдача книги читателю
+            </summary>
+            <param name="readerId">Id читателя</param>
+            <param name="bookId">Id книги</param>
+            <returns></returns>
+        </member>
+        <member name="M:LibrarianWorkplaceAPI.Controllers.ReadersController.ReturnBook(System.Int32,System.Int32)">
+            <summary>
+            Возврат книги в библиотеку
+            </summary>
+            <param name="readerId">Id читателя</param>
+            <param name="bookId">Id книги</param>
+            <returns></returns>
+        </member>
+        <member name="M:LibrarianWorkplaceAPI.Models.PatchModels.PatchBaseModel.IsFieldPresent(System.String)">
+            <summary>
+            Returns true if property was present in http request; false otherwise 
+            </summary>
+        </member>
+    </members>
+</doc>

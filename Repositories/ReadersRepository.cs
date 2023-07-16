@@ -1,6 +1,7 @@
 ﻿using LibrarianWorkplaceAPI.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System.Net;
+using System.Runtime.CompilerServices;
 
 namespace LibrarianWorkplaceAPI.Repositories
 {
@@ -39,10 +40,10 @@ namespace LibrarianWorkplaceAPI.Repositories
             await _context.SaveChangesAsync();
         }
 
-        public void ChangeReader(ReaderModel reader)
+        public async Task ChangeReader(ReaderModel reader)
         {
-            // _context.Entry(reader).State
             _context.Readers.Update(reader);
+            await _context.SaveChangesAsync();
         }
     }
 }

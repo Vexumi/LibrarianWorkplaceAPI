@@ -1,10 +1,6 @@
 ﻿using LibrarianWorkplaceAPI.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Infrastructure;
-using Microsoft.EntityFrameworkCore;
-using System.Net;
-using System.Net.Http;
-using System.Text.RegularExpressions;
+using System.Reflection.PortableExecutable;
 
 namespace LibrarianWorkplaceAPI.Controllers
 {
@@ -22,17 +18,25 @@ namespace LibrarianWorkplaceAPI.Controllers
         }
 
 
-        //GET
-        // Возвращает все книги
-        [HttpGet("getallbooks")]
+        /// <summary>
+        /// Возвращает все книги
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult<BookModel[]>> GetAllBooks()
         {
             return Ok((await _context.Books.GetAll()).ToArray());
         }
 
-        // GET: 
-        // Возвращает данные о книге по артикулу
-        [HttpGet("bookbyid/{vendorCode}")]
+        /// <summary>
+        /// Возвращает данные о книге по артикулу
+        /// </summary>
+        /// <param name="vendorCode">Артикул книги</param>
+        /// <returns></returns>
+        [HttpGet("{vendorCode:int}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<BookModel>> GetBookById(int vendorCode)
         {
             BookModel? book = await _context.Books.GetById(vendorCode);
@@ -41,46 +45,60 @@ namespace LibrarianWorkplaceAPI.Controllers
             return Ok(book);
         }
 
-        // GET: 
-        //Возвращает данные о книге по названию
-        [HttpGet("bookbytitle/{title}")]
+        /// <summary>
+        /// Возвращает данные о книге по названию
+        /// </summary>
+        /// <param name="title">Название книги</param>
+        /// <returns></returns>
+        [HttpGet("{title:alpha}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<BookModel[]>> GetBookByTitle(string title)
         {
             IEnumerable<BookModel>? books = await _context.Books.GetByTitle(title);
-            if (books is null || books.Count() == 0) return NotFound();
+            if (books is null || !books.Any()) return NotFound();
 
             return Ok(books.ToArray());
         }
 
-        // GET: 
-        // Возвращает список доступных для выдачи книг
-        [HttpGet("availablebooks")]
+        /// <summary>
+        /// Возвращает список доступных для выдачи книг
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("available")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult<BookModel[]>> GetAvailableBooks()
         {
-
             IEnumerable<BookModel>? books = await _context.Books.GetAvailableBooks();
-            if (books is null || books.Count() == 0) return Ok("All books are busy");
+            if (books is null || !books.Any()) return Ok("All books are busy");
 
             return Ok(books.ToArray());
         }
 
-        // GET: 
-        //Возвращает список выданных книг
-        [HttpGet("givedbooks")]
+        /// <summary>
+        /// Возвращает список выданных книг
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("gived")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult<BookModel[]>> GetGivedBooks()
         {
-
             IEnumerable<BookModel>? books = await _context.Books.GetGivedBooks();
-            if (books is null || books.Count() == 0) return Ok("All books are free");
+            if (books is null || !books.Any()) return Ok("All books are free");
 
             return Ok(books.ToArray());
         }
 
 
-        // POST: 
-        // Добавляет книгу
-        [HttpPost("addbook")]
-        public async Task<IActionResult> AddBook(BookGetModel book)
+        /// <summary>
+        /// Добавляет книгу
+        /// </summary>
+        /// <param name="book"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> AddBook([FromBody]BookGetModel book)
         {
             if (ModelState.IsValid) {
                 var newBook = new BookModel()
@@ -92,49 +110,56 @@ namespace LibrarianWorkplaceAPI.Controllers
                 };
                 _context.Books.Add(newBook);
                 await _context.Commit();
-                return Ok();
+                return CreatedAtAction(nameof(GetBookById), new { vendorCode = newBook.VendorCode}, newBook);
             }
             return BadRequest();
         }
 
-        // DELETE: 
-        // Удаляет книгу
-        [HttpDelete("deletebook/{vendorCode}")]
-        public async Task<IActionResult> DeleteBook(int vendorCode)
+        /// <summary>
+        /// Удаляет книгу
+        /// </summary>
+        /// <param name="vendorCode">Артикул книги</param>
+        /// <returns></returns>
+        [HttpDelete("{vendorCode}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> DeleteBook([FromRoute]int vendorCode)
         {
             var book = await _context.Books.GetById(vendorCode);
             if (book != null)
             {
                 _context.Books.Remove(book);
                 await _context.Commit();
-                return Ok();
+                return NoContent();
             }
             return NotFound();
         }
 
-        // PUT: 
-        // Редактирует данные книги
-        [HttpPut("changebook")]
-        public async Task<IActionResult> ChangeBook(BookModel book)
+        /// <summary>
+        /// Редактирует данные книги
+        /// </summary>
+        /// <param name="vendorCode"></param>
+        /// <param name="patchedBook"></param>
+        /// <returns></returns>
+        [HttpPatch("{vendorCode:int}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> ChangeBook([FromRoute]int vendorCode, [FromBody]BookPatchModel patchedBook)
         {
-            if (ModelState.IsValid)
-            {
-                var bc = await _context.Books.GetById(book.VendorCode);
-                if (bc != null && _context.Books.GetAll() != null)
-                {
-                    bc.Title = book.Title;
-                    bc.Author = book.Author;
-                    bc.ReleaseDate = book.ReleaseDate;
-                    bc.NumberOfCopies = book.NumberOfCopies;
-                    bc.Readers = book.Readers;
+            if (!ModelState.IsValid) return BadRequest();
 
-                    _context.Books.ChangeBook(bc);
-                    await _context.Commit();
-                    return Ok(bc);
-                }
-                return NotFound();
-            }
-            return BadRequest();
+            var book = await _context.Books.GetById(vendorCode);
+            if (book == null) return NotFound();
+
+            book.Title = patchedBook.IsFieldPresent(nameof(book.Title)) ? patchedBook.Title : book.Title;
+            book.Author = patchedBook.IsFieldPresent(nameof(book.Author)) ? patchedBook.Author : book.Author;
+            book.ReleaseDate = patchedBook.IsFieldPresent(nameof(book.ReleaseDate)) ? patchedBook.ReleaseDate : book.ReleaseDate;
+            book.NumberOfCopies = patchedBook.IsFieldPresent(nameof(book.NumberOfCopies)) ? patchedBook.NumberOfCopies : book.NumberOfCopies;
+
+            await _context.Books.ChangeBook(book);
+
+            return NoContent();
         }
     }
 }

@@ -3,8 +3,5 @@
     public interface IReadersRepository: IGenericRepository<ReaderModel>
     {
         Task<IEnumerable<ReaderModel>> GetReaderByName(string name);
-        Task TakeBook(ReaderModel reader, BookModel book);
-        Task ReturnBook(ReaderModel reader, BookModel book);
-        Task ChangeReader(ReaderModel reader);
     }
 }

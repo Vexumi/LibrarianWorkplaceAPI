@@ -126,13 +126,20 @@ namespace LibrarianWorkplaceAPI.Controllers
         public async Task<IActionResult> DeleteBook([FromRoute]int vendorCode)
         {
             var book = await _context.Books.GetById(vendorCode);
-            if (book != null)
+            if (book == null) return NotFound();
+
+            if (book.Readers != null && book.Readers.Count > 0)
             {
-                _context.Books.Remove(book);
-                await _context.Commit();
-                return NoContent();
+                while(book.Readers.Count > 0)
+                {
+                    await ReturnBook(book.Readers[0], book.VendorCode);
+                }
             }
-            return NotFound();
+
+            _context.Books.Remove(book);
+            await _context.Commit();
+            return NoContent();
+            
         }
 
         /// <summary>
@@ -154,10 +161,63 @@ namespace LibrarianWorkplaceAPI.Controllers
 
             book.Title = patchedBook.IsFieldPresent(nameof(book.Title)) ? patchedBook.Title : book.Title;
             book.Author = patchedBook.IsFieldPresent(nameof(book.Author)) ? patchedBook.Author : book.Author;
-            book.ReleaseDate = patchedBook.IsFieldPresent(nameof(book.ReleaseDate)) ? patchedBook.ReleaseDate : book.ReleaseDate;
-            book.NumberOfCopies = patchedBook.IsFieldPresent(nameof(book.NumberOfCopies)) ? patchedBook.NumberOfCopies : book.NumberOfCopies;
+            book.ReleaseDate = patchedBook.IsFieldPresent(nameof(book.ReleaseDate)) && patchedBook.ReleaseDate != null ? (DateTime)patchedBook.ReleaseDate : book.ReleaseDate;
+            book.NumberOfCopies = patchedBook.IsFieldPresent(nameof(book.NumberOfCopies)) && patchedBook.NumberOfCopies != null ? (int)patchedBook.NumberOfCopies : book.NumberOfCopies;
 
-            await _context.Books.ChangeBook(book);
+            _context.Books.Change(book);
+            await _context.Commit();
+
+            return NoContent();
+        }
+
+
+        /// <summary>
+        /// Выдача книги читателю
+        /// </summary>
+        /// <param name="readerId">Id читателя</param>
+        /// <param name="bookId">Id книги</param>
+        /// <returns></returns>
+        [HttpPut("take")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> TakeBook(int readerId, int bookId)
+        {
+            var reader = _context.Readers.Find(r => r.Id == readerId).FirstOrDefault();
+            var book = _context.Books.Find(r => r.VendorCode == bookId).FirstOrDefault();
+
+            if (reader == null || book == null) return NotFound(reader == null ? "Reader" : "Book");
+
+            if (book.Readers?.Count >= book.NumberOfCopies) return BadRequest("All books are busy");
+
+            if (reader.Books != null && reader.Books.Contains(bookId)) return BadRequest("Reader has already taken this book!");
+
+            await _context.Books.Take(reader, book);
+
+            return NoContent();
+        }
+
+        /// <summary>
+        /// Возврат книги в библиотеку
+        /// </summary>
+        /// <param name="readerId">Id читателя</param>
+        /// <param name="vendorCode">Артикул книги</param>
+        /// <returns></returns>
+        [HttpPut("return")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> ReturnBook(int readerId, int vendorCode)
+        {
+            var reader = await _context.Readers.GetById(readerId);
+            var book = await _context.Books.GetById(vendorCode);
+
+            if (reader == null || book == null) return NotFound(reader == null ? "Reader" : "Book");
+
+            if (reader.Books is null || !reader.Books.Contains(vendorCode)) return BadRequest("Reader didn't take the book");
+            if (book.Readers is null || !book.Readers.Contains(readerId)) return BadRequest("Book was't issued to the reader");
+
+            await _context.Books.Return(reader, book);
 
             return NoContent();
         }

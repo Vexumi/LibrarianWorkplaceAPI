@@ -46,5 +46,10 @@ namespace LibrarianWorkplaceAPI.Repositories
         {
             _context.Set<T>().RemoveRange(entities);
         }
+
+        public void Change(T entity)
+        {
+            _context.Set<T>().Update(entity);
+        }
     }
 }

@@ -58,6 +58,22 @@
             <param name="patchedBook"></param>
             <returns></returns>
         </member>
+        <member name="M:LibrarianWorkplaceAPI.Controllers.BooksController.TakeBook(System.Int32,System.Int32)">
+            <summary>
+            Выдача книги читателю
+            </summary>
+            <param name="readerId">Id читателя</param>
+            <param name="bookId">Id книги</param>
+            <returns></returns>
+        </member>
+        <member name="M:LibrarianWorkplaceAPI.Controllers.BooksController.ReturnBook(System.Int32,System.Int32)">
+            <summary>
+            Возврат книги в библиотеку
+            </summary>
+            <param name="readerId">Id читателя</param>
+            <param name="vendorCode">Артикул книги</param>
+            <returns></returns>
+        </member>
         <member name="M:LibrarianWorkplaceAPI.Controllers.ReadersController.GetAllReaders">
             <summary>
             Возвращает всех читателей
@@ -94,25 +110,10 @@
         </member>
         <member name="M:LibrarianWorkplaceAPI.Controllers.ReadersController.ChangeReader(System.Int32,ReaderPatchModel)">
             <summary>
-            Меняет данные читателя 
+            Редактирует данные читателя 
             </summary>
+            <param name="id"></param>
             <param name="patchedReader"></param>
-            <returns></returns>
-        </member>
-        <member name="M:LibrarianWorkplaceAPI.Controllers.ReadersController.TakeBook(System.Int32,System.Int32)">
-            <summary>
-            Выдача книги читателю
-            </summary>
-            <param name="readerId">Id читателя</param>
-            <param name="bookId">Id книги</param>
-            <returns></returns>
-        </member>
-        <member name="M:LibrarianWorkplaceAPI.Controllers.ReadersController.ReturnBook(System.Int32,System.Int32)">
-            <summary>
-            Возврат книги в библиотеку
-            </summary>
-            <param name="readerId">Id читателя</param>
-            <param name="bookId">Id книги</param>
             <returns></returns>
         </member>
         <member name="M:LibrarianWorkplaceAPI.Models.PatchModels.PatchBaseModel.IsFieldPresent(System.String)">

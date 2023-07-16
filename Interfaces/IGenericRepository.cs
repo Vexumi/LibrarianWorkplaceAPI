@@ -11,5 +11,6 @@ namespace LibrarianWorkplaceAPI.Interfaces
         void AddRange(IEnumerable<T> entities);
         void Remove(T entity);
         void RemoveRange(IEnumerable<T> entities);
+        void Change(T entity);
     }
 }

@@ -63,7 +63,7 @@
             Выдача книги читателю
             </summary>
             <param name="readerId">Id читателя</param>
-            <param name="bookId">Id книги</param>
+            <param name="vendorCode">Id книги</param>
             <returns></returns>
         </member>
         <member name="M:LibrarianWorkplaceAPI.Controllers.BooksController.ReturnBook(System.Int32,System.Int32)">

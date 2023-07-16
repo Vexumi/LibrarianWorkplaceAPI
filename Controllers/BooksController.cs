@@ -175,22 +175,22 @@ namespace LibrarianWorkplaceAPI.Controllers
         /// Выдача книги читателю
         /// </summary>
         /// <param name="readerId">Id читателя</param>
-        /// <param name="bookId">Id книги</param>
+        /// <param name="vendorCode">Id книги</param>
         /// <returns></returns>
         [HttpPut("take")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> TakeBook(int readerId, int bookId)
+        public async Task<IActionResult> TakeBook(int readerId, int vendorCode)
         {
-            var reader = _context.Readers.Find(r => r.Id == readerId).FirstOrDefault();
-            var book = _context.Books.Find(r => r.VendorCode == bookId).FirstOrDefault();
+            var reader = await _context.Readers.GetById(readerId);
+            var book = await _context.Books.GetById(vendorCode);
 
             if (reader == null || book == null) return NotFound(reader == null ? "Reader" : "Book");
 
             if (book.Readers?.Count >= book.NumberOfCopies) return BadRequest("All books are busy");
 
-            if (reader.Books != null && reader.Books.Contains(bookId)) return BadRequest("Reader has already taken this book!");
+            if (reader.Books != null && reader.Books.Contains(vendorCode)) return BadRequest("Reader has already taken this book!");
 
             await _context.Books.Take(reader, book);
 

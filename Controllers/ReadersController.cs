@@ -67,7 +67,7 @@ namespace LibrarianWorkplaceAPI.Controllers
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status201Created)]
-        public IActionResult AddReader(ReaderGetModel reader)
+        public async Task<IActionResult> AddReader(ReaderGetModel reader)
         {
             if (ModelState.IsValid)
             {
@@ -77,7 +77,7 @@ namespace LibrarianWorkplaceAPI.Controllers
                     DateOfBirth = reader.DateOfBirth
                 };
                 _context.Readers.Add(newReader);
-                _context.Commit();
+                await _context.Commit();
                 return CreatedAtAction(nameof(GetReaderById), new { id = newReader.Id }, newReader);
             }
             return BadRequest();
@@ -94,7 +94,7 @@ namespace LibrarianWorkplaceAPI.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> DeleteReader(int id)
         {
-            var reader = _context.Readers.Find(r => r.Id == id).FirstOrDefault();
+            var reader = await _context.Readers.GetById(id);
             if (reader == null) return NotFound();
             
             if (reader.Books != null && reader.Books.Any()) return BadRequest("Not all books returned");
@@ -118,7 +118,7 @@ namespace LibrarianWorkplaceAPI.Controllers
         {
             if (!ModelState.IsValid) return BadRequest();
 
-            var reader = _context.Readers.Find(r => r.Id == id).FirstOrDefault();
+            var reader = await _context.Readers.GetById(id);
             if (reader == null) return NotFound();
             
             reader.FullName = patchedReader.IsFieldPresent(nameof(reader.FullName)) ? patchedReader.FullName : reader.FullName;

@@ -1,4 +1,4 @@
-﻿using LibrarianWorkplaceAPI.Interfaces;
+﻿using LibrarianWorkplaceAPI.Core.Repositories.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LibrarianWorkplaceAPI.Controllers

@@ -1,6 +1,6 @@
 using LibrarianWorkplaceAPI;
-using LibrarianWorkplaceAPI.Interfaces;
-using LibrarianWorkplaceAPI.Repositories;
+using LibrarianWorkplaceAPI.Core.Repositories.Interfaces;
+using LibrarianWorkplaceAPI.Core.Repositories;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection;
 using LibrarianWorkplaceAPI.Models.PatchModels;

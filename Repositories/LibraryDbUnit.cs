@@ -1,4 +1,4 @@
-﻿using LibrarianWorkplaceAPI.Interfaces;
+﻿using LibrarianWorkplaceAPI.Core.Repositories.Interfaces;
 
 namespace LibrarianWorkplaceAPI.Repositories
 {

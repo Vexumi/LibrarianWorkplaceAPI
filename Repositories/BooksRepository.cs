@@ -1,4 +1,4 @@
-﻿using LibrarianWorkplaceAPI.Interfaces;
+﻿using LibrarianWorkplaceAPI.Core.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace LibrarianWorkplaceAPI.Repositories

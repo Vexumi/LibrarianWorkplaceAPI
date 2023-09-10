@@ -19,4 +19,5 @@ public class BookModel
     public int NumberOfCopies { get; set; }
     // Список id читателей, которым выдали книги
     public List<int>? Readers { get; set; }
+    public string LibraryName { get; set; }
 }

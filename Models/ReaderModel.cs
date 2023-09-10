@@ -12,5 +12,6 @@ public class ReaderModel
     public DateTime DateOfBirth { get; set; }
     // Список из id книг, выданных пользователю
     public List<int>? Books { get; set; }
+    public string LibraryName { get; set; }
 }
 

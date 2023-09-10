@@ -6,6 +6,7 @@ namespace LibrarianWorkplaceAPI
     {
         public DbSet<BookModel> Books { get; set; } = null!;
         public DbSet<ReaderModel> Readers { get; set; } = null!;
+        public DbSet<UserModel> Users { get; set; } = null!;
 
         public ApplicationContext(DbContextOptions options) : base(options)
         {
@@ -19,6 +20,7 @@ namespace LibrarianWorkplaceAPI
 
             modelBuilder.Entity<BookModel>().HasKey(b => b.VendorCode);
             modelBuilder.Entity<ReaderModel>().HasKey(b => b.Id);
+            modelBuilder.Entity<UserModel>().HasKey(b => b.Id);
         }
     }
 }

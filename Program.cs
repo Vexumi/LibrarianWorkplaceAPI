@@ -20,6 +20,7 @@ builder.Services.AddTransient(typeof(IGenericRepository<>), typeof(GenericReposi
 builder.Services.AddTransient<IBooksRepository, BooksRepository>();
 builder.Services.AddTransient<IReadersRepository, ReadersRepository>();
 builder.Services.AddTransient<ILibraryDbUnit, LibraryDbUnit>();
+builder.Services.AddTransient<IUsersDbUnit, UsersDbUnit>();
 #endregion
 
 builder.Services.AddEndpointsApiExplorer();

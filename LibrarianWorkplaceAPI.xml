@@ -4,6 +4,11 @@
         <name>LibrarianWorkplaceAPI</name>
     </assembly>
     <members>
+        <member name="M:LibrarianWorkplaceAPI.Controllers.AuthController.Authenticate(UserCredential)">
+            <summary>
+            Функция для получения токена для доступа к API
+            </summary>
+        </member>
         <member name="M:LibrarianWorkplaceAPI.Controllers.BooksController.GetAllBooks">
             <summary>
             Возвращает все книги
@@ -115,6 +120,11 @@
             <param name="id"></param>
             <param name="patchedReader"></param>
             <returns></returns>
+        </member>
+        <member name="M:LibrarianWorkplaceAPI.Controllers.RegisterController.Registration(LibrarianWorkplaceAPI.Models.GetModels.RegisterUserModel)">
+            <summary>
+            Функция для регистрации библиотеки в API
+            </summary>
         </member>
         <member name="M:LibrarianWorkplaceAPI.Models.PatchModels.PatchBaseModel.IsFieldPresent(System.String)">
             <summary>

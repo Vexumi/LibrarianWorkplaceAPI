@@ -18,6 +18,9 @@ namespace LibrarianWorkplaceAPI.Controllers
             _tokenManager = tokenManager;
         }
 
+        /// <summary>
+        /// Получениу токена для доступа к API
+        /// </summary>
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status200OK)]

@@ -6,7 +6,7 @@
     <members>
         <member name="M:LibrarianWorkplaceAPI.Controllers.AuthController.Authenticate(UserCredential)">
             <summary>
-            Функция для получения токена для доступа к API
+            Получениу токена для доступа к API
             </summary>
         </member>
         <member name="M:LibrarianWorkplaceAPI.Controllers.BooksController.GetAllBooks">
@@ -123,7 +123,7 @@
         </member>
         <member name="M:LibrarianWorkplaceAPI.Controllers.RegisterController.Registration(LibrarianWorkplaceAPI.Models.GetModels.RegisterUserModel)">
             <summary>
-            Функция для регистрации библиотеки в API
+            Регистрация библиотеки в API
             </summary>
         </member>
         <member name="M:LibrarianWorkplaceAPI.Models.PatchModels.PatchBaseModel.IsFieldPresent(System.String)">

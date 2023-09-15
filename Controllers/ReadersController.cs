@@ -1,8 +1,10 @@
 ﻿using LibrarianWorkplaceAPI.Core.Repositories.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LibrarianWorkplaceAPI.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/readers")]
     public class ReadersController : ControllerBase

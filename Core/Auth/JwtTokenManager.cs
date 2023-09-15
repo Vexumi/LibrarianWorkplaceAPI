@@ -43,5 +43,16 @@ namespace LibrarianWorkplaceAPI.Core.Auth
 
             return tokenHandler.WriteToken(token);
         }
+
+        public bool? Register(UserModel newUser)
+        {
+            var user = _usersContext.Users.Find(c => c.UserName == newUser.UserName).FirstOrDefault();
+            if (user != null) return null;
+
+            _usersContext.Users.Add(newUser);
+            _usersContext.Commit();
+
+            return true;
+        }
     }
 }

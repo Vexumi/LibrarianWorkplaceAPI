@@ -19,7 +19,7 @@ namespace LibrarianWorkplaceAPI.Controllers
         }
 
         /// <summary>
-        /// Получениу токена для доступа к API
+        /// Получение токена для доступа к API
         /// </summary>
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status200OK)]

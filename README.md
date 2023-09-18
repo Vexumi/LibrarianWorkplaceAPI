@@ -6,4 +6,4 @@ Web API рабочего места библиотекаря, написанно
 
 
 ## Настройка
-В файле appsettings.json в "DefaultConnection" написать свою строку подключения к PostgreSQL.
+В файле appsettings.json в "DefaultConnection" написать свою строку подключения к PostgreSQL, в "JwtToken:Key" написать уникальный ключ шифрования.

@@ -12,7 +12,7 @@ namespace LibrarianWorkplaceAPI.Controllers
     {
         private readonly ITokenManager _tokenManager;
         private readonly ILogger _logger;
-        public AuthController(ILogger<BooksController> logger, ITokenManager tokenManager)
+        public AuthController(ILogger<AuthController> logger, ITokenManager tokenManager)
         {
             _logger = logger;
             _tokenManager = tokenManager;
@@ -22,8 +22,8 @@ namespace LibrarianWorkplaceAPI.Controllers
         /// Получениу токена для доступа к API
         /// </summary>
         [HttpPost]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<ActionResult<string>> Authenticate([FromBody] UserCredential userCredential)
         {
             var token = _tokenManager.Authenticate(userCredential.UserName, userCredential.Password);

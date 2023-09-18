@@ -14,7 +14,7 @@ namespace LibrarianWorkplaceAPI.Controllers
 
         private readonly ITokenManager _tokenManager;
         private readonly ILogger _logger;
-        public RegisterController(ILogger<BooksController> logger, ITokenManager tokenManager)
+        public RegisterController(ILogger<RegisterController> logger, ITokenManager tokenManager)
         {
             _logger = logger;
             _tokenManager = tokenManager;

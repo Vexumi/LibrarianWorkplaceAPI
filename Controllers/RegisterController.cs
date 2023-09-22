@@ -4,9 +4,11 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using LibrarianWorkplaceAPI.Controllers;
 using LibrarianWorkplaceAPI.Models.GetModels;
+using Microsoft.AspNetCore.Cors;
 
 namespace LibrarianWorkplaceAPI.Controllers
 {
+    [EnableCors]
     [Route("api/register")]
     [ApiController]
     public class RegisterController : ControllerBase

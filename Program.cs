@@ -21,6 +21,8 @@ builder.Services.AddControllers().AddNewtonsoftJson(options =>
     options.SerializerSettings.ContractResolver = new PatchRequestContractResolver();
 });
 
+builder.Services.AddCors();
+
 builder.Services.AddAuthentication(authOptions =>
 {
     authOptions.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -53,6 +55,7 @@ builder.Services.AddTransient<IUsersDbUnit, UsersDbUnit>();
 builder.Services.AddTransient<ITokenManager, JwtTokenManager>();
 
 builder.Services.AddEndpointsApiExplorer();
+
 
 builder.Services.AddSwaggerGen(c =>
 {
@@ -98,8 +101,13 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+app.UseCors(builder =>
+{
+    builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
+});
 
 app.UseHttpsRedirection();
+
 
 app.UseAuthentication();
 app.UseAuthorization();

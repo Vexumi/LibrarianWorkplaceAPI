@@ -1,10 +1,12 @@
 ﻿using LibrarianWorkplaceAPI.Core.Repositories.Interfaces;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using System.Reflection.PortableExecutable;
 
 namespace LibrarianWorkplaceAPI.Controllers
 {
+    [EnableCors]
     [Authorize]
     [ApiController]
     [Route("api/books")]

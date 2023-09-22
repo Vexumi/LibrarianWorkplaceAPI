@@ -6,7 +6,7 @@
     <members>
         <member name="M:LibrarianWorkplaceAPI.Controllers.AuthController.Authenticate(UserCredential)">
             <summary>
-            Получениу токена для доступа к API
+            Получение токена для доступа к API
             </summary>
         </member>
         <member name="M:LibrarianWorkplaceAPI.Controllers.BooksController.GetAllBooks">

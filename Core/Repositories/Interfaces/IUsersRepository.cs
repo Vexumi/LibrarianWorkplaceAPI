@@ -2,5 +2,6 @@
 {
     public interface IUsersRepository: IGenericRepository<UserModel>
     {
+        Task<UserModel> GetByLibraryName(string libraryName);
     }
 }

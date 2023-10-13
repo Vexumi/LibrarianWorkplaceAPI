@@ -1,8 +1,10 @@
 ﻿using LibrarianWorkplaceAPI.Core.Repositories.Interfaces;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization.Infrastructure;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using System.Reflection.PortableExecutable;
+using System.Security.Claims;
 
 namespace LibrarianWorkplaceAPI.Controllers
 {
@@ -19,6 +21,17 @@ namespace LibrarianWorkplaceAPI.Controllers
         {
             _logger = logger;
             _context = context;
+        }
+
+        /// <summary>
+        /// Получает Id библиотеки исходя из Claims которые пришли
+        /// </summary>
+        /// <returns></returns>
+        private async Task<int> GetLibraryId()
+        {
+            var libraryName = HttpContext.User.Claims.Where((name) => name.Type == ClaimTypes.Name).FirstOrDefault()?.Value;
+            var user = await _context.Users.GetByLibraryName(libraryName);
+            return user.Id;
         }
 
 
@@ -109,8 +122,9 @@ namespace LibrarianWorkplaceAPI.Controllers
                 {
                     Title = book.Title,
                     Author = book.Author,
-                    ReleaseDate = book.ReleaseDate,
+                    ReleaseDate = Convert.ToDateTime(book.ReleaseDate),
                     NumberOfCopies = book.NumberOfCopies,
+                    LibraryId = await GetLibraryId()
                 };
                 _context.Books.Add(newBook);
                 await _context.Commit();

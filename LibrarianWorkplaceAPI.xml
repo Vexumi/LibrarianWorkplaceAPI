@@ -9,6 +9,12 @@
             Получение токена для доступа к API
             </summary>
         </member>
+        <member name="M:LibrarianWorkplaceAPI.Controllers.BooksController.GetLibraryId">
+            <summary>
+            Получает Id библиотеки исходя из Claims которые пришли
+            </summary>
+            <returns></returns>
+        </member>
         <member name="M:LibrarianWorkplaceAPI.Controllers.BooksController.GetAllBooks">
             <summary>
             Возвращает все книги

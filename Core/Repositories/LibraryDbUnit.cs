@@ -7,12 +7,14 @@ namespace LibrarianWorkplaceAPI.Core.Repositories
         private readonly ApplicationContext _context;
         public IBooksRepository Books { get; private set; }
         public IReadersRepository Readers { get; private set; }
+        public IUsersRepository Users { get; private set; }
 
         public LibraryDbUnit(ApplicationContext context)
         {
             _context = context;
             Books = new BooksRepository(_context);
             Readers = new ReadersRepository(_context);
+            Users = new UsersRepository(_context);
         }
 
         public async Task<int> Commit()

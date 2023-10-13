@@ -78,7 +78,8 @@ namespace LibrarianWorkplaceAPI.Controllers
                 ReaderModel newReader = new ReaderModel()
                 {
                     FullName = reader.FullName,
-                    DateOfBirth = reader.DateOfBirth
+                    DateOfBirth = reader.DateOfBirth,
+                    LibraryName = reader.LibraryName,
                 };
                 _context.Readers.Add(newReader);
                 await _context.Commit();
